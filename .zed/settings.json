@@ -1,0 +1,44 @@
+{
+  "inlay_hints": {
+    "enabled": true,
+    "show_type_hints": true,
+    "show_parameter_hints": true,
+    "show_other_hints": true,
+  },
+  "languages": {
+    "Rust": {
+      "format_on_save": "on",
+      "formatter": "language_server",
+    },
+  },
+  "lsp": {
+    "rust-analyzer": {
+      "initialization_options": {
+        "checkOnSave": true,
+        "check": {
+          "command": "clippy",
+          "workspace": true,
+        },
+        "inlayHints": {
+          "maxLength": null,
+          "typeHints": {
+            "enable": true,
+          },
+          "parameterHints": {
+            "enable": true,
+          },
+          "chainingHints": {
+            "enable": true,
+          },
+          "closureReturnTypeHints": {
+            "enable": "always",
+          },
+          "lifetimeElisionHints": {
+            "enable": "skip_trivial",
+            "useParameterNames": true,
+          },
+        },
+      },
+    },
+  },
+}
