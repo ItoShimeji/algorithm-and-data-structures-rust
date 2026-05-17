@@ -9,3 +9,11 @@ version = "0.1.0"
 [[package]]
 name = "alds1_1_d"
 version = "0.1.0"
+
+[[package]]
+name = "alds1_2_a"
+version = "0.1.0"
+
+[[package]]
+name = "alds1_2_b"
+version = "0.1.0"
