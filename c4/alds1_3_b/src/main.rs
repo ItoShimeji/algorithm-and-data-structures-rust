@@ -23,8 +23,6 @@ fn solve<'a>(quantum: u32, processes: &[Process<'a>]) -> Vec<(&'a str, u32)> {
         let time = process.time;
         if time <= quantum {
             total_time += process.time;
-            process.time = 0;
-
             result.push((process.name, total_time));
         } else {
             total_time += quantum;

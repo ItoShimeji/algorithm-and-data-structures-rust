@@ -30,7 +30,7 @@ fn solve(tokens: &[&str]) -> i64 {
         }
     }
 
-    stack[0]
+    stack.pop().unwrap()
 }
 
 fn main() {}
