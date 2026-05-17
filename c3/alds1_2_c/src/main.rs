@@ -1,5 +1,3 @@
-use std::iter;
-
 // ALDS1_2_C: Stable Sort
 // https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_2_C
 fn solve<'a>(cards: &'a [&'a str]) -> (Vec<&'a str>, bool, Vec<&'a str>, bool) {
@@ -81,7 +79,8 @@ fn selection_sort(mut cards: Vec<Card>) -> Vec<Card> {
     cards
 }
 
-fn is_stable(sorted_bubble: &Vec<Card>, sorted_selection: &Vec<Card>) -> bool {
+// &[Card] にすることで、Vec 自体の機能を使っていない関数の一般性を上げることができる。
+fn is_stable(sorted_bubble: &[Card], sorted_selection: &[Card]) -> bool {
     sorted_bubble.iter().eq(sorted_selection.iter())
 }
 

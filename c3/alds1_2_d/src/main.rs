@@ -4,6 +4,7 @@ fn solve(values: &[i64]) -> (Vec<usize>, usize, Vec<i64>) {
     let mut values = values.to_vec();
     let mut count = 0;
 
+    // ここを一般化するのはテストを通すのに本質的ではないため、決めうち
     let h_list = if values.len() > 3 {
         vec![4, 1]
     } else {
@@ -11,15 +12,15 @@ fn solve(values: &[i64]) -> (Vec<usize>, usize, Vec<i64>) {
     };
 
     for h in &h_list {
-        let (new_values, new_count) = insertion_sort(&mut values, *h);
-        values = new_values.clone();
-        count += new_count;
+        // 参照型の value は mutable は借用を渡して、副作用的に変化させれば良い
+        // Rust では borrow checker のおかげで、副作用的な変更を安全にできる
+        count += insertion_sort(&mut values, *h);
     }
 
     (h_list, count, values)
 }
 
-fn insertion_sort(values: &mut Vec<i64>, h: usize) -> (&Vec<i64>, usize) {
+fn insertion_sort(values: &mut Vec<i64>, h: usize) -> usize {
     let mut count: usize = 0;
 
     for i in 1..values.len() {
@@ -36,7 +37,7 @@ fn insertion_sort(values: &mut Vec<i64>, h: usize) -> (&Vec<i64>, usize) {
         values[j] = v;
     }
 
-    (values, count)
+    count
 }
 
 fn main() {}
