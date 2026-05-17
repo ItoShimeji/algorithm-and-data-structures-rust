@@ -5,12 +5,20 @@ fn solve(values: &[i32]) -> (Vec<i32>, usize) {
     let mut count = 0;
 
     for i in 0..(values_vec.len() - 1) {
+        // 交換がなくなったタイミングで早期に break するため
+        let mut was_swapped = false;
         for j in 0..(values_vec.len() - (i + 1)) {
             if values_vec[j] > values_vec[j + 1] {
-                // swao method 便利だな
+                // swap method 便利だな
                 values_vec.swap(j, j + 1);
                 count += 1;
+
+                was_swapped = true;
             }
+        }
+
+        if !was_swapped {
+            break;
         }
     }
 
