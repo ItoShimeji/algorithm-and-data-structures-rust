@@ -33,3 +33,11 @@ version = "0.1.0"
 [[package]]
 name = "alds1_3_b"
 version = "0.1.0"
+
+[[package]]
+name = "alds1_3_c"
+version = "0.1.0"
+
+[[package]]
+name = "alds1_3_d"
+version = "0.1.0"
