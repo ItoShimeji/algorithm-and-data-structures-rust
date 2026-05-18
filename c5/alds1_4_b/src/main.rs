@@ -1,17 +1,18 @@
 // ALDS1_4_B: Search II
 // https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_4_B
 fn solve(sorted_values: &[u64], queries: &[u64]) -> usize {
-    let queries = queries.to_vec();
     let mut count = 0;
 
-    for q in queries {
+    for &q in queries {
         // start を含む
         let mut start_index = 0;
         // end は含まない
         let mut end_index = sorted_values.len();
 
         while start_index < end_index {
-            let median_index = (end_index + start_index) / 2;
+            // 平均を出す計算方法の方がシンプルだが、足し算で一時的に大きな値が生じ、オーバーフローの可能性があるため、
+            // 以下のような方法の方が安全。
+            let median_index = start_index + (end_index - start_index) / 2;
             let median = sorted_values[median_index];
 
             if q > median {
