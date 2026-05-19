@@ -10,7 +10,9 @@ fn solve(_depth: usize) -> Vec<(f64, f64)> {
 
     let mut vertices: Vec<Vertex> = Vec::new();
     vertices.push(p1.clone());
-    vertices.extend(kock(&p1, &p2, 0, _depth));
+    if let Some(p1_and_p2) = kock(&p1, &p2, 0, _depth) {
+        vertices.extend(p1_and_p2);
+    };
     vertices.push(p2);
 
     vertices.iter().map(|v| (v.x, v.y)).collect()
@@ -25,51 +27,51 @@ const ROTATE_60: Vertex = Vertex {
 // between p1 and p2 の頂点を全て配列に入れて返す
 // current_depth -> 頂点を計算済みの n
 // depth -> 最終的な目標の n
-fn kock(start: &Vertex, end: &Vertex, current_depth: usize, depth: usize) -> Vec<Vertex> {
+fn kock(start: &Vertex, end: &Vertex, current_depth: usize, depth: usize) -> Option<Vec<Vertex>> {
+    if current_depth == depth {
+        return None;
+    }
+
     let start_to_s = &(end - start) * (1.0 / 3.0);
 
     // ベクトル演算
     let s = start + &start_to_s;
-    let u = &start_to_s + &(&start_to_s * &ROTATE_60);
+    let u = &s + &(&start_to_s * &ROTATE_60);
     let t = end - &start_to_s;
 
     // 頂点の配列を初期化
     let mut vertices: Vec<Vertex> = Vec::new();
 
     // between start and s
-    if current_depth + 1 < depth {
-        let start_to_s = kock(start, &s, current_depth + 1, depth);
+    if let Some(start_to_s) = kock(start, &s, current_depth + 1, depth) {
         vertices.extend(start_to_s);
-    }
+    };
 
     // s
     vertices.push(s.clone());
 
     // between a and u
-    if current_depth + 1 < depth {
-        let s_and_u = kock(&s, &u, current_depth + 1, depth);
+    if let Some(s_and_u) = kock(&s, &u, current_depth + 1, depth) {
         vertices.extend(s_and_u);
-    }
+    };
 
     // u
     vertices.push(u.clone());
 
     // between u and t
-    if current_depth + 1 < depth {
-        let u_and_t = kock(&u, &t, current_depth + 1, depth);
+    if let Some(u_and_t) = kock(&u, &t, current_depth + 1, depth) {
         vertices.extend(u_and_t);
-    }
+    };
 
     // t
     vertices.push(t.clone());
 
     // between t and end
-    if current_depth + 1 < depth {
-        let t_and_end = kock(&t, end, current_depth + 1, depth);
+    if let Some(t_and_end) = kock(&t, end, current_depth + 1, depth) {
         vertices.extend(t_and_end);
-    }
+    };
 
-    vertices
+    Some(vertices)
 }
 
 #[derive(Clone)]
