@@ -6,7 +6,7 @@ use std::ops::Sub;
 // https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_5_C
 fn solve(_depth: usize) -> Vec<(f64, f64)> {
     let p1 = Vertex { x: 0.0, y: 0.0 };
-    let p2 = Vertex { x: 1.0, y: 0.0 };
+    let p2 = Vertex { x: 100.0, y: 0.0 };
 
     let mut vertices: Vec<Vertex> = Vec::new();
     vertices.push(p1.clone());
@@ -26,15 +26,21 @@ const ROTATE_60: Vertex = Vertex {
 // current_depth -> 頂点を計算済みの n
 // depth -> 最終的な目標の n
 fn kock(start: &Vertex, end: &Vertex, current_depth: usize, depth: usize) -> Vec<Vertex> {
-    let p1_to_s = &(end - start) * (1.0 / 3.0);
+    let start_to_s = &(end - start) * (1.0 / 3.0);
 
-    let s = start + &p1_to_s;
-    let p1_to_u = &p1_to_s + &(&p1_to_s * &ROTATE_60);
-    let u = &s + &p1_to_u;
-    let t = end - &p1_to_s;
+    // ベクトル演算
+    let s = start + &start_to_s;
+    let u = &start_to_s + &(&start_to_s * &ROTATE_60);
+    let t = end - &start_to_s;
 
     // 頂点の配列を初期化
     let mut vertices: Vec<Vertex> = Vec::new();
+
+    // between start and s
+    if current_depth + 1 < depth {
+        let start_to_s = kock(start, &s, current_depth + 1, depth);
+        vertices.extend(start_to_s);
+    }
 
     // s
     vertices.push(s.clone());
@@ -55,7 +61,13 @@ fn kock(start: &Vertex, end: &Vertex, current_depth: usize, depth: usize) -> Vec
     }
 
     // t
-    vertices.push(t);
+    vertices.push(t.clone());
+
+    // between t and end
+    if current_depth + 1 < depth {
+        let t_and_end = kock(&t, end, current_depth + 1, depth);
+        vertices.extend(t_and_end);
+    }
 
     vertices
 }
@@ -91,10 +103,12 @@ impl Sub for &Vertex {
 impl Mul for &Vertex {
     type Output = Vertex;
 
+    // 複素数の演算から導出
+    // (a + bi)(c + di) = (ac - bd) + (ad + bc)i
     fn mul(self, rhs: &Vertex) -> Self::Output {
         Vertex {
-            x: self.x * rhs.x,
-            y: self.y * rhs.y,
+            x: self.x * rhs.x - self.y * rhs.y,
+            y: self.x * rhs.y + self.y * rhs.x,
         }
     }
 }
