@@ -4,15 +4,13 @@ use std::ops::Sub;
 
 // ALDS1_5_C: Koch Curve
 // https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_5_C
-fn solve(_depth: usize) -> Vec<(f64, f64)> {
+fn solve(depth: usize) -> Vec<(f64, f64)> {
     let p1 = Vertex { x: 0.0, y: 0.0 };
     let p2 = Vertex { x: 100.0, y: 0.0 };
 
     let mut vertices: Vec<Vertex> = Vec::new();
-    vertices.push(p1.clone());
-    if let Some(p1_and_p2) = kock(&p1, &p2, 0, _depth) {
-        vertices.extend(p1_and_p2);
-    };
+    vertices.push(p1);
+    vertices.extend(koch(p1, p2, 0, depth));
     vertices.push(p2);
 
     vertices.iter().map(|v| (v.x, v.y)).collect()
@@ -27,63 +25,61 @@ const ROTATE_60: Vertex = Vertex {
 // between p1 and p2 の頂点を全て配列に入れて返す
 // current_depth -> 頂点を計算済みの n
 // depth -> 最終的な目標の n
-fn kock(start: &Vertex, end: &Vertex, current_depth: usize, depth: usize) -> Option<Vec<Vertex>> {
+fn koch(start: Vertex, end: Vertex, current_depth: usize, depth: usize) -> Vec<Vertex> {
     if current_depth == depth {
-        return None;
+        return Vec::new();
     }
 
-    let start_to_s = &(end - start) * (1.0 / 3.0);
+    let start_to_s = (end - start) * (1.0 / 3.0);
 
     // ベクトル演算
-    let s = start + &start_to_s;
-    let u = &s + &(&start_to_s * &ROTATE_60);
-    let t = end - &start_to_s;
+    let s = start + start_to_s;
+    let u = s + start_to_s * ROTATE_60;
+    let t = end - start_to_s;
 
     // 頂点の配列を初期化
     let mut vertices: Vec<Vertex> = Vec::new();
 
     // between start and s
-    if let Some(start_to_s) = kock(start, &s, current_depth + 1, depth) {
-        vertices.extend(start_to_s);
-    };
+    let start_and_s = koch(start, s, current_depth + 1, depth);
+    vertices.extend(start_and_s);
 
     // s
-    vertices.push(s.clone());
+    vertices.push(s);
 
     // between a and u
-    if let Some(s_and_u) = kock(&s, &u, current_depth + 1, depth) {
-        vertices.extend(s_and_u);
-    };
+    let s_and_u = koch(s, u, current_depth + 1, depth);
+    vertices.extend(s_and_u);
 
     // u
-    vertices.push(u.clone());
+    vertices.push(u);
 
     // between u and t
-    if let Some(u_and_t) = kock(&u, &t, current_depth + 1, depth) {
-        vertices.extend(u_and_t);
-    };
+    let u_and_t = koch(u, t, current_depth + 1, depth);
+    vertices.extend(u_and_t);
 
     // t
-    vertices.push(t.clone());
+    vertices.push(t);
 
     // between t and end
-    if let Some(t_and_end) = kock(&t, end, current_depth + 1, depth) {
-        vertices.extend(t_and_end);
-    };
+    let t_and_end = koch(t, end, current_depth + 1, depth);
+    vertices.extend(t_and_end);
 
-    Some(vertices)
+    vertices
 }
 
-#[derive(Clone)]
+// Vertex は 生成コストの低い値のため、この定義によって値型のように
+// 暗黙的な clone を可能にする。
+#[derive(Clone, Copy)]
 struct Vertex {
     x: f64,
     y: f64,
 }
 
-impl Add for &Vertex {
+impl Add for Vertex {
     type Output = Vertex;
 
-    fn add(self, rhs: &Vertex) -> Self::Output {
+    fn add(self, rhs: Vertex) -> Self::Output {
         Vertex {
             x: self.x + rhs.x,
             y: self.y + rhs.y,
@@ -91,10 +87,10 @@ impl Add for &Vertex {
     }
 }
 
-impl Sub for &Vertex {
+impl Sub for Vertex {
     type Output = Vertex;
 
-    fn sub(self, rhs: &Vertex) -> Self::Output {
+    fn sub(self, rhs: Vertex) -> Self::Output {
         Vertex {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
@@ -102,12 +98,12 @@ impl Sub for &Vertex {
     }
 }
 
-impl Mul for &Vertex {
+impl Mul for Vertex {
     type Output = Vertex;
 
     // 複素数の演算から導出
     // (a + bi)(c + di) = (ac - bd) + (ad + bc)i
-    fn mul(self, rhs: &Vertex) -> Self::Output {
+    fn mul(self, rhs: Vertex) -> Self::Output {
         Vertex {
             x: self.x * rhs.x - self.y * rhs.y,
             y: self.x * rhs.y + self.y * rhs.x,
@@ -115,7 +111,7 @@ impl Mul for &Vertex {
     }
 }
 
-impl Mul<f64> for &Vertex {
+impl Mul<f64> for Vertex {
     type Output = Vertex;
 
     fn mul(self, rhs: f64) -> Self::Output {

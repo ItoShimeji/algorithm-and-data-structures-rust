@@ -1,10 +1,10 @@
 // ALDS1_5_A: Exhaustive Search
 // https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_5_A
-fn solve(_values: &[i32], _queries: &[i32]) -> Vec<bool> {
+fn solve(values: &[i32], queries: &[i32]) -> Vec<bool> {
     let mut result: Vec<bool> = Vec::new();
 
-    for &query in _queries {
-        result.push(search(_values, 0, query));
+    for &query in queries {
+        result.push(search(values, 0, query));
     }
 
     result
