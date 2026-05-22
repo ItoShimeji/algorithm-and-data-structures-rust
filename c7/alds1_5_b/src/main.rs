@@ -25,9 +25,12 @@ fn merge_sort(values: &mut [i32], left: usize, right: usize) -> usize {
 }
 
 fn merge(values: &mut [i32], left: usize, mid: usize, right: usize) -> usize {
-    let left_velues = &mut values[left..mid].to_vec();
-    left_velues.push(i32::MAX);
+    // データ構造は vec deque の方が良いのかもしれない
+    let left_values = &mut values[left..mid].to_vec();
     let right_values = &mut values[mid..right].to_vec();
+
+    // 番兵を追加
+    left_values.push(i32::MAX);
     right_values.push(i32::MAX);
 
     let mut head_left = 0;
@@ -36,8 +39,9 @@ fn merge(values: &mut [i32], left: usize, mid: usize, right: usize) -> usize {
     let mut count = 0;
 
     for index in left..right {
-        if left_velues[head_left] < right_values[head_right] {
-            values[index] = left_velues[head_left];
+        // 同じ値の際に、left を優先することで安定ソートにする
+        if left_values[head_left] <= right_values[head_right] {
+            values[index] = left_values[head_left];
             head_left += 1;
         } else {
             values[index] = right_values[head_right];
