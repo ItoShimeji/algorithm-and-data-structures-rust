@@ -9,7 +9,8 @@ fn solve(_values: &[usize]) -> (Vec<usize>, usize) {
     let mut right_end = 0;
 
     for i in 0..(values.len() - 1) {
-        if values[i] < partition_value {
+        // 問題文の疑似コードに従って、イコールをつける
+        if values[i] <= partition_value {
             values.swap(left_end, right_end);
 
             left_end += 1;
