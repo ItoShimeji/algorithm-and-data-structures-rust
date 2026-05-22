@@ -17,9 +17,10 @@ fn quick_sort(values: &mut [(char, usize)]) {
 
     let pivot = median_of_three(0, values.len() / 2 + 1, values.len() - 1);
 
+    // border を含まない左右の部分スライスを再帰的に処理
     let border = partition(values, pivot);
     quick_sort(&mut values[0..border]);
-    quick_sort(&mut values[border..]);
+    quick_sort(&mut values[border + 1..]);
 }
 
 fn partition(values: &mut [(char, usize)], pivot: usize) -> usize {
@@ -79,6 +80,8 @@ mod tests {
     }
 }
 
+// 以下は Hoare partition にちかいが、今回の実装では実装が複雑な反面あまり
+// 魅力がなさそう。
 // // 左右から走査していく head
 // let mut head_left = 0;
 // let mut head_right = values.len() - 1;
