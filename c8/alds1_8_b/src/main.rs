@@ -1,0 +1,164 @@
+// ALDS1_8_B: Binary Search Tree II
+// https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_8_B
+use std::io::{self, Read};
+
+use alds1_8_b::BinaryTree;
+
+#[allow(dead_code)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Operation {
+    Insert(i32),
+    Find(i32),
+    Print,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, PartialEq, Eq)]
+pub enum OperationResult {
+    Found(bool),
+    Walk(WalkResult),
+}
+
+#[allow(dead_code)]
+#[derive(Debug, PartialEq, Eq)]
+pub struct WalkResult {
+    pub inorder: Vec<i32>,
+    pub preorder: Vec<i32>,
+}
+
+#[allow(dead_code)]
+struct Scanner {
+    input: Vec<String>,
+    index: usize,
+}
+
+#[allow(dead_code)]
+impl Scanner {
+    fn new(input: &str) -> Self {
+        let input = input.split_whitespace().map(String::from).collect();
+        Scanner { input, index: 0 }
+    }
+
+    fn next<T: std::str::FromStr>(&mut self) -> T {
+        let value = self.input[self.index].parse::<T>().ok().unwrap();
+        self.index += 1;
+        value
+    }
+}
+
+#[allow(dead_code)]
+fn solve(operations: &[Operation]) -> Vec<OperationResult> {
+    let mut tree = BinaryTree::new();
+    let mut results: Vec<OperationResult> = Vec::new();
+
+    for operation in operations {
+        match operation {
+            Operation::Insert(key) => {
+                tree.insert(*key);
+            }
+            Operation::Find(key) => results.push(OperationResult::Found(tree.find(*key))),
+            Operation::Print => {
+                results.push(OperationResult::Walk(WalkResult {
+                    inorder: tree.search_in(),
+                    preorder: tree.search_pre(),
+                }));
+            }
+        };
+    }
+
+    results
+}
+
+fn run(input: &str) -> String {
+    let mut sc = Scanner::new(input);
+    let n: usize = sc.next();
+
+    let operations: Vec<Operation> = (0..n)
+        .map(|_| {
+            let operation: String = sc.next();
+
+            match operation.as_str() {
+                "insert" => Operation::Insert(sc.next()),
+                "find" => Operation::Find(sc.next()),
+                "print" => Operation::Print,
+                _ => {
+                    panic!();
+                }
+            }
+        })
+        .collect();
+
+    let result = solve(&operations);
+    let mut output = String::new();
+
+    for operation_result in result {
+        match operation_result {
+            OperationResult::Found(is_found) => {
+                let message = if is_found { "yes" } else { "no" };
+                output.push_str(&format!("{}\n", message));
+            }
+            OperationResult::Walk(traces) => {
+                // 空の tree の場合は何も印刷しない
+                if traces.inorder.is_empty() {
+                    continue;
+                }
+
+                let str_inorder = traces
+                    .inorder
+                    .iter()
+                    .map(|n| n.to_string())
+                    .collect::<Vec<String>>()
+                    .join(" ");
+
+                let str_preorder = traces
+                    .preorder
+                    .iter()
+                    .map(|n| n.to_string())
+                    .collect::<Vec<String>>()
+                    .join(" ");
+
+                output.push_str(&format!(" {}\n", str_inorder));
+                output.push_str(&format!(" {}\n", str_preorder));
+            }
+        }
+    }
+
+    output
+}
+
+fn main() {
+    let mut input = String::new();
+    io::stdin().read_to_string(&mut input).unwrap();
+    print!("{}", run(&input));
+}
+
+#[cfg(test)]
+mod tests {
+    use super::run;
+
+    #[test]
+    fn sample_1() {
+        let input = "\
+10
+insert 30
+insert 88
+insert 12
+insert 1
+insert 20
+find 12
+insert 17
+insert 25
+find 16
+print
+";
+
+        let output = "\
+yes
+no
+ 1 12 17 20 25 30 88
+ 30 12 1 20 17 25 88
+";
+
+        assert_eq!(run(input), output);
+    }
+}
