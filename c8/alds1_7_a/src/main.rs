@@ -2,7 +2,13 @@
 // https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_7_A
 use std::io::{self, Read};
 
-use alds1_7_a::{NodeInfo, Tree};
+#[allow(dead_code)]
+#[derive(Debug, PartialEq, Eq)]
+pub struct NodeInfo {
+    pub parent: isize,
+    pub depth: usize,
+    pub children: Vec<usize>,
+}
 
 struct Scanner {
     input: Vec<String>,
@@ -22,15 +28,89 @@ impl Scanner {
     }
 }
 
+struct Node {
+    parent: Option<usize>,
+    left: Option<usize>,
+    right: Option<usize>,
+}
+
 #[allow(dead_code)]
 // id, cs
 fn solve(children: &[(usize, Vec<usize>)]) -> Vec<NodeInfo> {
-    let mut tree = Tree::new();
-    for (id, children) in children {
-        tree.insert(*id, children.clone());
+    let mut values: Vec<Node> = Vec::new();
+
+    for (_, cs) in children {
+        let node = Node {
+            parent: None,
+            left: cs.first().copied(),
+            right: None,
+        };
+        values.push(node);
     }
 
-    tree.get_node_info()
+    for (id, cs) in children {
+        for (index, child_id) in cs.iter().enumerate() {
+            // 自分の親を登録
+            let child_node = &mut values[*child_id];
+            child_node.parent = Some(*id);
+
+            // 左の兄弟の右兄弟として自分を登録
+            if index > 0 {
+                let left_id = cs[index - 1];
+                let left_node = &mut values[left_id];
+                left_node.right = Some(*child_id);
+            }
+        }
+    }
+
+    let root = values
+        .iter()
+        .position(|node| node.parent.is_none())
+        .unwrap();
+
+    let mut depth_list: Vec<usize> = vec![0; children.len()];
+    set_depth(&values, &mut depth_list, root, 0);
+
+    let mut children_list: Vec<Vec<usize>> = vec![Vec::new(); children.len()];
+    set_children(&values, &mut children_list);
+
+    let node_info: Vec<NodeInfo> = (0..children.len())
+        .map(|i| NodeInfo {
+            parent: values[i].parent.map_or(-1, |p| p as isize),
+            depth: depth_list[i],
+            children: children_list[i].clone(),
+        })
+        .collect();
+
+    node_info
+}
+
+fn set_depth(values: &Vec<Node>, depth_list: &mut Vec<usize>, id: usize, depth: usize) {
+    depth_list[id] = depth;
+    if let Some(left) = values[id].left {
+        set_depth(values, depth_list, left, depth + 1);
+    }
+    if let Some(right) = values[id].right {
+        set_depth(values, depth_list, right, depth);
+    }
+}
+
+fn set_children(values: &Vec<Node>, children_list: &mut Vec<Vec<usize>>) {
+    for node in values {
+        let mut children: Vec<usize> = Vec::new();
+
+        let mut child = node.left;
+        while child.is_some() {
+            if let Some(child_id) = child {
+                children.push(child_id);
+                let child_node = &values[child_id];
+
+                child = child_node.right;
+            }
+        }
+
+        children_list.push(children);
+    }
 }
 
 fn run(input: &str) -> String {
@@ -50,7 +130,7 @@ fn run(input: &str) -> String {
     let result = solve(&nodes);
     let mut output = String::new();
 
-    for node in result {
+    for (i, node) in result.iter().enumerate() {
         let node_type = if node.parent == -1 {
             "root"
         } else if node.children.is_empty() {
@@ -61,7 +141,7 @@ fn run(input: &str) -> String {
 
         output.push_str(&format!(
             "node {}: parent = {}, depth = {}, {}, {:?}\n",
-            node.id, node.parent, node.depth, node_type, node.children
+            i, node.parent, node.depth, node_type, node.children
         ));
     }
 
@@ -112,6 +192,7 @@ node 10: parent = 0, depth = 1, internal node, [11, 12]
 node 11: parent = 10, depth = 2, leaf, []
 node 12: parent = 10, depth = 2, leaf, []
 ";
+
         assert_eq!(run(input), output);
     }
 
