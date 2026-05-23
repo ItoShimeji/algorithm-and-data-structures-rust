@@ -37,18 +37,17 @@ struct Node {
 #[allow(dead_code)]
 // id, cs
 fn solve(children: &[(usize, Vec<usize>)]) -> Vec<NodeInfo> {
-    let mut values: Vec<Node> = Vec::new();
-
-    for (_, cs) in children {
-        let node = Node {
+    let mut values: Vec<Node> = (0..children.len())
+        .map(|_| Node {
             parent: None,
-            left: cs.first().copied(),
+            left: None,
             right: None,
-        };
-        values.push(node);
-    }
+        })
+        .collect();
 
     for (id, cs) in children {
+        values[*id].left = cs.first().copied();
+
         for (index, child_id) in cs.iter().enumerate() {
             // 自分の親を登録
             let child_node = &mut values[*child_id];
@@ -96,7 +95,7 @@ fn set_depth(values: &Vec<Node>, depth_list: &mut Vec<usize>, id: usize, depth: 
 }
 
 fn set_children(values: &Vec<Node>, children_list: &mut Vec<Vec<usize>>) {
-    for node in values {
+    for (id, node) in values.iter().enumerate() {
         let mut children: Vec<usize> = Vec::new();
 
         let mut child = node.left;
@@ -109,7 +108,7 @@ fn set_children(values: &Vec<Node>, children_list: &mut Vec<Vec<usize>>) {
             }
         }
 
-        children_list.push(children);
+        children_list[id] = children;
     }
 }
 
