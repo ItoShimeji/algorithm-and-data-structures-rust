@@ -41,17 +41,6 @@ fn insert(node: &mut Option<Box<Node>>, key: i32) {
         }
         None => *node = Some(Box::new(Node::new(key))),
     }
-    // if key <= self.key {
-    //     match &mut self.left {
-    //         Some(left) => left.as_mut().insert(key),
-    //         None => self.left = Some(Box::new(Node::new(key))),
-    //     }
-    // } else {
-    //     match &mut self.right {
-    //         Some(right) => right.as_mut().insert(key),
-    //         None => self.right = Some(Box::new(Node::new(key))),
-    //     }
-    // }
 }
 
 pub struct BinaryTree {

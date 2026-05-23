@@ -82,6 +82,11 @@ fn run(input: &str) -> String {
     let mut output = String::new();
 
     for traces in result {
+        // 空の tree の場合は何も印刷しない
+        if traces.inorder.is_empty() {
+            continue;
+        }
+
         let str_inorder = traces
             .inorder
             .iter()
