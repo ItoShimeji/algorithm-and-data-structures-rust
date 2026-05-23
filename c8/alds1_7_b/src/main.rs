@@ -61,7 +61,7 @@ fn solve(nodes: &[NodeInput]) -> Vec<NodeInfo> {
         })
         .collect();
 
-    set_info(&tree, &mut node_info, root_id, None, None, 0);
+    set_info(&tree, &mut node_info, root_id, None, 0);
 
     node_info
 }
@@ -71,21 +71,20 @@ fn set_info(
     tree: &Vec<Node>,
     node_info: &mut Vec<NodeInfo>,
     id: usize,
-    parent_id: Option<usize>,
     sibling: Option<usize>,
     depth: usize,
 ) -> usize {
     let mut degree = 0;
     let h_left = if let Some(left) = tree[id].left {
         degree += 1;
-        set_info(tree, node_info, left, Some(id), tree[id].right, depth + 1) + 1
+        set_info(tree, node_info, left, tree[id].right, depth + 1) + 1
     } else {
         0
     };
 
     let h_right = if let Some(right) = tree[id].right {
         degree += 1;
-        set_info(tree, node_info, right, Some(id), tree[id].left, depth + 1) + 1
+        set_info(tree, node_info, right, tree[id].left, depth + 1) + 1
     } else {
         0
     };
@@ -94,7 +93,7 @@ fn set_info(
 
     // 値をセット
     node_info[id] = NodeInfo {
-        parent: parent_id,
+        parent: tree[id].parent,
         sibling,
         degree,
         depth,
@@ -108,14 +107,14 @@ fn set_info(
 fn create_tree(nodes: &[NodeInput]) -> (Vec<Node>, usize) {
     let mut tree: Vec<Node> = (0..nodes.len())
         .map(|i| {
-            // 0..n の id が順不同で与えられることを想定
+            // 0..n の id が順不同で与えられることを想定すると、以下のようにするか、sortしてからか
             // tree のインデックス i には id == i の node を登録
-            let node = nodes.iter().find(|&node| node.id == i).unwrap();
+            // let node = nodes.iter().find(|&node| node.id == i).unwrap();
 
             Node {
                 parent: None,
-                left: node.left,
-                right: node.right,
+                left: nodes[i].left,
+                right: nodes[i].right,
             }
         })
         .collect();
