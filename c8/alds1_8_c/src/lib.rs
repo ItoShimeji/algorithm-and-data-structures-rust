@@ -35,7 +35,7 @@ fn search_in(node: &Option<Box<Node>>, trace: &mut Vec<i32>) {
 }
 
 // inorder において、次の node である次節点の key を返す
-fn take_min(node: &Box<Node>) -> i32 {
+fn take_min(node: &Node) -> i32 {
     match &node.left {
         Some(left) => take_min(left),
         None => node.key,
@@ -144,5 +144,53 @@ impl BinaryTree {
         let mut trace = Vec::new();
         search_in(&self.root, &mut trace);
         trace
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::BinaryTree;
+
+    fn tree_from(keys: &[i32]) -> BinaryTree {
+        let mut tree = BinaryTree::new();
+
+        for key in keys {
+            tree.insert(*key);
+        }
+
+        tree
+    }
+
+    #[test]
+    fn delete_root_with_two_children_successor_is_right_child() {
+        let mut tree = tree_from(&[5, 3, 7, 8]);
+
+        tree.delete(5);
+
+        assert_eq!(tree.search_in(), vec![3, 7, 8]);
+        assert_eq!(tree.search_pre(), vec![7, 3, 8]);
+        assert!(!tree.find(5));
+    }
+
+    #[test]
+    fn delete_root_with_two_children_successor_has_right_child() {
+        let mut tree = tree_from(&[5, 3, 9, 7, 8]);
+
+        tree.delete(5);
+
+        assert_eq!(tree.search_in(), vec![3, 7, 8, 9]);
+        assert_eq!(tree.search_pre(), vec![7, 3, 9, 8]);
+        assert!(!tree.find(5));
+    }
+
+    #[test]
+    fn delete_internal_node_with_two_children() {
+        let mut tree = tree_from(&[10, 5, 15, 3, 7, 6, 8]);
+
+        tree.delete(5);
+
+        assert_eq!(tree.search_in(), vec![3, 6, 7, 8, 10, 15]);
+        assert_eq!(tree.search_pre(), vec![10, 6, 3, 7, 8, 15]);
+        assert!(!tree.find(5));
     }
 }
