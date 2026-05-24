@@ -29,8 +29,11 @@ fn solve(values: &[i32]) -> Vec<i32> {
 
     // length / 2 とすることで heap 上の葉の一個上の node から走査でき、効率が良い
     // index を反転させているのは、heap を下から完成させ、max_heapify の前提に則るため
-    for i in (2..=length / 2).rev() {
-        max_heapify(&mut heap, (i - 1) as i32);
+    // i == 1 は root
+    // ここで O(n) でループを回しており、max_heapify の計算量は (0/2 + 1/4 + 2/8 + 3/16 + ...) と定数に収束するため、
+    // 全体で O(n)
+    for i in (1..=length / 2).rev() {
+        max_heapify(&mut heap, i as i32);
     }
 
     heap
