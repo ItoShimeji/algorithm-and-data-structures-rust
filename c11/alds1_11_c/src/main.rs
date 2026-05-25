@@ -51,7 +51,7 @@ fn solve(n: usize, adjacency_lists: &[Vec<usize>]) -> Vec<(usize, i32)> {
     let matrix = to_matrix(n, adjacency_lists);
     // vertex id を登録
     let mut queue: VecDeque<usize> = VecDeque::new();
-    let mut d = vec![i32::MAX; n];
+    let mut d = vec![-1; n];
 
     colors[0] = Color::Gray;
     queue.push_back(1);
@@ -110,11 +110,12 @@ mod tests {
     #[test]
     fn sample_1() {
         let input = "\
-4
+5
 1 2 2 4
 2 1 4
 3 0
 4 1 3
+5 1 2
 ";
 
         let output = "\
@@ -122,6 +123,7 @@ mod tests {
 2 1
 3 2
 4 1
+5 -1
 ";
 
         assert_eq!(run(input), output);
