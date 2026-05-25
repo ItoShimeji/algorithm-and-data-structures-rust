@@ -47,6 +47,8 @@ enum Color {
 
 #[allow(dead_code)]
 fn solve(n: usize, adjacency_lists: &[Vec<usize>]) -> Vec<(usize, i32)> {
+    // この問題だと、 queue と colors の責務が被っている
+    // 最短距離ではなく、閉路の検出などでは活用できるらしい
     let mut colors = vec![Color::White; n];
     let matrix = to_matrix(n, adjacency_lists);
     // vertex id を登録
@@ -57,10 +59,7 @@ fn solve(n: usize, adjacency_lists: &[Vec<usize>]) -> Vec<(usize, i32)> {
     queue.push_back(1);
     d[0] = 0;
 
-    while !queue.is_empty() {
-        let id = queue.pop_front().unwrap();
-        colors[id - 1] = Color::Black;
-
+    while let Some(id) = queue.pop_front() {
         for (i, &is_neighbor) in matrix[id - 1].iter().enumerate() {
             if is_neighbor {
                 if let Color::White = colors[i] {
@@ -70,6 +69,8 @@ fn solve(n: usize, adjacency_lists: &[Vec<usize>]) -> Vec<(usize, i32)> {
                 }
             }
         }
+
+        colors[id - 1] = Color::Black;
     }
 
     d.iter()
