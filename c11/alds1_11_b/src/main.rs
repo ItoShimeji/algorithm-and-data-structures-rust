@@ -45,8 +45,9 @@ fn solve(n: usize, adjacency_lists: &[Vec<usize>]) -> Vec<(usize, usize, usize)>
         })
         .collect();
 
+    let mut time = 0;
     for i in 0..adjacency_lists.len() {
-        dfs(adjacency_lists, &mut vertex_list, i, 0);
+        time = dfs(adjacency_lists, &mut vertex_list, i, time);
     }
 
     vertex_list.iter().map(|v| v.tuple()).collect()
