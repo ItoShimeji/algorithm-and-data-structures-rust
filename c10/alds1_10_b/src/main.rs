@@ -1,10 +1,6 @@
 // ALDS1_10_B: Matrix-chain Multiplication
 // https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_10_B
-use std::{
-    cmp::min,
-    io::{self, Read},
-    usize,
-};
+use std::io::{self, Read};
 
 #[allow(dead_code)]
 struct Scanner {
@@ -26,43 +22,32 @@ impl Scanner {
     }
 }
 
-fn multiplication_count(lhs: (usize, usize), rhs: (usize, usize)) -> usize {
-    lhs.0 * lhs.1 * rhs.1
-}
-
-struct Dp {
-    count: usize,
-    matrix: (usize, usize),
-}
-
 #[allow(dead_code)]
 fn solve(matrix_sizes: &[(usize, usize)]) -> usize {
-    // index 0: 0 <- 一個だけ行列が与えられた場合
-    // index 1: l * m * n <- 1つ目と2つ目の積の際の乗算の回数
-    // (乗算回数, (その時の乗算結果の行列の次元))
-    let mut dp: Vec<Dp> = Vec::new();
-    dp.push(Dp {
-        count: 0,
-        matrix: matrix_sizes[0],
-    });
+    let n = matrix_sizes.len();
+    let mut dp = vec![vec![0usize; n]; n];
 
-    for i in 1..matrix_sizes.len() {
-        let first = (matrix_sizes[0].0, matrix_sizes[i].1);
-        let neighbor = (matrix_sizes[i - 1].0, matrix_sizes[i].1);
-        let a = multiplication_count(dp[i - 1].matrix, matrix_sizes[i]);
-        let b = if i == 1 {
-            usize::MAX
-        } else {
-            multiplication_count(dp[i - 2].matrix, neighbor)
-        };
+    // l, .., k, .., r
+    // かっこで作られる部分の長さを 2 から n（全体）まで
+    for len in 2..=n {
+        // 部分の左を動かしていく
+        for l in 0..=n - len {
+            let r = l + len - 1;
+            dp[l][r] = usize::MAX;
 
-        dp.push(Dp {
-            count: min(a, b),
-            matrix: first,
-        });
+            // 部分の中でどこで分割するか
+            // (M_1, M_2, M_3)(M_4, M_5) なら、k = 3
+            for k in l..r {
+                let cost = dp[l][k]
+                    + dp[k + 1][r]
+                    + matrix_sizes[l].0 * matrix_sizes[k].1 * matrix_sizes[r].1;
+
+                dp[l][r] = dp[l][r].min(cost);
+            }
+        }
     }
 
-    dp.last().unwrap().count
+    dp[0][n - 1]
 }
 
 fn run(input: &str) -> String {
