@@ -40,11 +40,13 @@ fn solve(n: usize, adjacency_matrix: &[Vec<i32>]) -> i32 {
         used[current_v] = true;
 
         for (i, &a) in adjacency_matrix[current_v].iter().enumerate() {
-            if a < min_cost[i] {
+            if !used[i] && a < min_cost[i] {
                 min_cost[i] = a;
             }
         }
 
+        // 使用されていない頂点から最小の重みを持つ辺で移動できるものを探す。
+        // 1つも無い = 探索終了 でループ脱出
         let next_v = (1..n).filter(|i| !used[*i]).min_by_key(|i| min_cost[*i]);
         match next_v {
             Some(next_v) => current_v = next_v,
@@ -52,6 +54,8 @@ fn solve(n: usize, adjacency_matrix: &[Vec<i32>]) -> i32 {
         }
     }
 
+    // もし全域木が存在しないならば、min_cost で i32::MAX から更新されていない要素が生じ、
+    // ここでオーバーフローする
     min_cost.iter().sum()
 }
 
