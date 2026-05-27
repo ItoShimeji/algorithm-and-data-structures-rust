@@ -65,7 +65,7 @@ fn run(input: &str) -> String {
     let mut sc = Scanner::new(input);
     let n: usize = sc.next();
 
-    let mut graph = (0..n)
+    let input = (0..n)
         .map(|_| {
             let u: usize = sc.next();
             let k: usize = sc.next();
@@ -81,13 +81,11 @@ fn run(input: &str) -> String {
         })
         .collect::<Vec<(usize, Vec<Edge>)>>();
 
-    graph.sort_by_key(|(u, _)| *u);
+    let mut graph: Vec<Vec<Edge>> = vec![Vec::new(); n];
 
-    let graph = graph
-        .iter()
-        .cloned()
-        .map(|(_, list)| list)
-        .collect::<Vec<Vec<Edge>>>();
+    for (u, edge_list) in input {
+        graph[u] = edge_list;
+    }
 
     solve(n, &graph)
         .iter()
