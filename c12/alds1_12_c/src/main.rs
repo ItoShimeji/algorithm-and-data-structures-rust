@@ -40,22 +40,19 @@ fn solve(n: usize, graph: &[Vec<Edge>]) -> Vec<i32> {
     // usize: 頂点
     // tuple は 第一要素から順に大小比較される
     let mut heap: BinaryHeap<Reverse<(i32, usize)>> = BinaryHeap::new();
-    for i in 0..n {
-        if i == 0 {
-            heap.push(Reverse((0, 0)));
-        } else {
-            heap.push(Reverse((i32::MAX, i)));
-        }
-    }
+    heap.push(Reverse((0, 0)));
 
     while let Some(Reverse(v)) = heap.pop() {
+        // ここで break してはいけない
+        // より現在の距離が大きくて探索中のものが存在する可能性がある
         if d[v.1] < v.0 {
-            break;
+            continue;
         }
 
         for edge in &graph[v.1] {
             if d[v.1] + edge.cost < d[edge.to] {
                 d[edge.to] = d[v.1] + edge.cost;
+                // 古い要素は無視して投入だけ行う
                 heap.push(Reverse((d[edge.to], edge.to)));
             }
         }
